@@ -1,0 +1,7 @@
+.git
+.github
+.env
+postman
+tests
+*.md
+docker-compose.yml

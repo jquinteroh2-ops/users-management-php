@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: emisoras-php
+    runtime: docker
+    plan: free
+    branch: main
+    autoDeployTrigger: "off" # lo dispara GitHub Actions cuando pasan las pruebas
+    envVars:
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_DATABASE
+        value: crud_usuarios
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_CHARSET
+        value: utf8mb4
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_ENCRYPTION
+        value: tls
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM_ADDRESS
+        sync: false
+      - key: SMTP_FROM_NAME
+        value: CRUD Emisoras

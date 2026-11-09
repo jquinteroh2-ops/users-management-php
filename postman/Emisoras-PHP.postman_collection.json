@@ -1,0 +1,362 @@
+{
+  "info": {
+    "name": "Emisoras - PHP Hexagonal (Ejercicio 25)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "CRUDL de Emisora por la API JSON. Ejecutar en orden con el Collection Runner (la petición 01 inicia sesión y Postman guarda la cookie). Cambie baseUrl para probar en Render."
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8081/public/index.php"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 Listar sin sesión (401)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/emisoras"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 401', () => pm.response.to.have.status(401));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 Iniciar sesión (guarda cookie PHPSESSID)",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": "{{baseUrl}}?route=auth.authenticate",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "email",
+              "value": "admin@example.com"
+            },
+            {
+              "key": "password",
+              "value": "Admin1234!"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Listar emisoras",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/emisoras"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Es un arreglo', () => pm.expect(pm.response.json()).to.be.an('array'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Crear emisora",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/emisoras",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"emi-100\",\n  \"nombre\": \"Radio Prueba Postman\",\n  \"canal\": \"HJPP\",\n  \"bandaFm\": 104.3,\n  \"bandaAm\": null,\n  \"numLocutores\": 3,\n  \"genero\": \"MUSICAL\",\n  \"horario\": \"24 horas\",\n  \"patrocinador\": \"Tienda La Esquina\",\n  \"pais\": \"Colombia\",\n  \"descripcion\": \"Emisora creada desde Postman\",\n  \"numProgramas\": 6,\n  \"numCiudades\": 2\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.test('Devuelve el id', () => pm.expect(pm.response.json().id).to.eql('emi-100'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Crear emisora duplicada (409)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/emisoras",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"emi-100\",\n  \"nombre\": \"Radio Prueba Postman\",\n  \"canal\": \"HJPP\",\n  \"bandaFm\": 104.3,\n  \"bandaAm\": null,\n  \"numLocutores\": 3,\n  \"genero\": \"MUSICAL\",\n  \"horario\": \"24 horas\",\n  \"patrocinador\": \"Tienda La Esquina\",\n  \"pais\": \"Colombia\",\n  \"descripcion\": \"Emisora creada desde Postman\",\n  \"numProgramas\": 6,\n  \"numCiudades\": 2\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 409', () => pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Crear sin banda FM ni AM (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/emisoras",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"emi-101\",\n  \"nombre\": \"Radio Sin Banda\",\n  \"canal\": \"HJPP\",\n  \"bandaFm\": null,\n  \"bandaAm\": null,\n  \"numLocutores\": 3,\n  \"genero\": \"MUSICAL\",\n  \"horario\": \"24 horas\",\n  \"patrocinador\": \"Tienda La Esquina\",\n  \"pais\": \"Colombia\",\n  \"descripcion\": \"Emisora creada desde Postman\",\n  \"numProgramas\": 6,\n  \"numCiudades\": 2\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Crear con FM fuera de rango (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/emisoras",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": \"emi-102\",\n  \"nombre\": \"Radio FM Mala\",\n  \"canal\": \"HJPP\",\n  \"bandaFm\": 120.0,\n  \"bandaAm\": null,\n  \"numLocutores\": 3,\n  \"genero\": \"MUSICAL\",\n  \"horario\": \"24 horas\",\n  \"patrocinador\": \"Tienda La Esquina\",\n  \"pais\": \"Colombia\",\n  \"descripcion\": \"Emisora creada desde Postman\",\n  \"numProgramas\": 6,\n  \"numCiudades\": 2\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 Obtener emisora por id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/emisoras/emi-100"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Obtener emisora inexistente (404)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/emisoras/emi-999"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 404', () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Actualizar emisora",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/emisoras/emi-100",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Radio Prueba Postman FM-AM\",\n  \"canal\": \"HJPP\",\n  \"bandaFm\": 104.3,\n  \"bandaAm\": 1250,\n  \"numLocutores\": 5,\n  \"genero\": \"VARIEDADES\",\n  \"horario\": \"24 horas\",\n  \"patrocinador\": \"Tienda La Esquina\",\n  \"pais\": \"Colombia\",\n  \"descripcion\": \"Emisora creada desde Postman\",\n  \"numProgramas\": 6,\n  \"numCiudades\": 2\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Ahora tiene AM', () => pm.expect(pm.response.json().bandaAm).to.eql(1250));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 Actualizar con nombre de otra emisora (409)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{baseUrl}}/api/emisoras/emi-100",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Radio Cartagena Stereo\",\n  \"canal\": \"HJPP\",\n  \"bandaFm\": 104.3,\n  \"bandaAm\": 1250,\n  \"numLocutores\": 5,\n  \"genero\": \"VARIEDADES\",\n  \"horario\": \"24 horas\",\n  \"patrocinador\": \"Tienda La Esquina\",\n  \"pais\": \"Colombia\",\n  \"descripcion\": \"Emisora creada desde Postman\",\n  \"numProgramas\": 6,\n  \"numCiudades\": 2\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 409', () => pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 Eliminar emisora",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/emisoras/emi-100"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 204', () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 Eliminar otra vez (404)",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{baseUrl}}/api/emisoras/emi-100"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 404', () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
