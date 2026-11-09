@@ -25,4 +25,11 @@
     <li><strong>L:</strong> Listar usuarios</li>
 </ul>
 
+<h2>Emisoras (ejercicio 25)</h2>
+<ul>
+    <li><a href="?route=emisoras.create">Registrar emisora</a></li>
+    <li><a href="?route=emisoras.index">Listar, consultar, editar y eliminar emisoras</a></li>
+    <li><a href="docs/swagger.html">Documentación de la API (Swagger)</a></li>
+</ul>
+
 <?php require __DIR__ . '/layouts/footer.php'; ?>
