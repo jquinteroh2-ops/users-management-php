@@ -1,0 +1,130 @@
+openapi: 3.0.3
+info:
+  title: API Emisoras (Ejercicio 25) - PHP Hexagonal
+  version: 1.0.0
+  description: |
+    CRUDL de la entidad Emisora. La autenticación usa la sesión de la aplicación:
+    primero se envía `POST ?route=auth.authenticate` (formulario con email y password)
+    y el navegador o Postman guardan la cookie `PHPSESSID`.
+servers:
+  - url: ../index.php
+    description: Mismo servidor que la aplicación
+paths:
+  /api/emisoras:
+    get:
+      tags: [Emisoras]
+      summary: Listar emisoras (ordenadas por nombre)
+      responses:
+        "200":
+          description: Lista de emisoras
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Emisora" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+    post:
+      tags: [Emisoras]
+      summary: Registrar emisora
+      description: El id es opcional (si no se envía se genera un UUID). Nombre único y al menos una banda.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/EmisoraEntrada" }
+      responses:
+        "201":
+          description: Emisora creada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Emisora" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/NoAutenticado" }
+        "409": { $ref: "#/components/responses/Error" }
+  /api/emisoras/{id}:
+    parameters:
+      - { $ref: "#/components/parameters/Id" }
+    get:
+      tags: [Emisoras]
+      summary: Obtener una emisora por id
+      responses:
+        "200":
+          description: Emisora encontrada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Emisora" }
+        "404": { $ref: "#/components/responses/Error" }
+    put:
+      tags: [Emisoras]
+      summary: Actualizar emisora
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/EmisoraEntrada" }
+      responses:
+        "200":
+          description: Emisora actualizada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Emisora" }
+        "400": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "409": { $ref: "#/components/responses/Error" }
+    delete:
+      tags: [Emisoras]
+      summary: Eliminar emisora
+      responses:
+        "204": { description: Emisora eliminada }
+        "404": { $ref: "#/components/responses/Error" }
+components:
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, example: emi-001 }
+  responses:
+    Error:
+      description: Error con mensaje
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+    NoAutenticado:
+      description: No hay sesión iniciada
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+  schemas:
+    EmisoraEntrada:
+      type: object
+      required: [nombre, canal, numLocutores, genero, horario, pais, numProgramas, numCiudades]
+      properties:
+        id: { type: string, example: emi-100 }
+        nombre: { type: string, minLength: 3, example: Radio Prueba }
+        canal: { type: string, example: HJPP }
+        bandaFm: { type: number, nullable: true, minimum: 87.5, maximum: 108.0, example: 104.3 }
+        bandaAm: { type: integer, nullable: true, minimum: 530, maximum: 1710, example: 1250 }
+        numLocutores: { type: integer, minimum: 1, example: 3 }
+        genero:
+          type: string
+          enum: [NOTICIAS, MUSICAL, DEPORTIVA, CULTURAL, RELIGIOSA, EDUCATIVA, COMUNITARIA, VARIEDADES]
+        horario: { type: string, example: 24 horas }
+        patrocinador: { type: string, example: Tienda La Esquina }
+        pais: { type: string, example: Colombia }
+        descripcion: { type: string, example: Emisora de prueba }
+        numProgramas: { type: integer, minimum: 0, example: 6 }
+        numCiudades: { type: integer, minimum: 1, example: 2 }
+    Emisora:
+      allOf:
+        - $ref: "#/components/schemas/EmisoraEntrada"
+        - type: object
+          required: [id]
+    ApiError:
+      type: object
+      properties:
+        status: { type: integer, example: 404 }
+        message: { type: string, example: No existe una emisora con el id emi-999. }
+        errors:
+          type: object
+          additionalProperties: { type: string }

@@ -79,3 +79,5 @@ yarn-error.log*
 docs/
 .vscode/settings.json
 *.ps1
+# Ejercicio 25: la documentacion Swagger de la API si se publica
+!public/docs/

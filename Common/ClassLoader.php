@@ -80,6 +80,51 @@ final class ClassLoader
         'Flash' => 'Infrastructure/Entrypoints/Web/Presentation/Flash.php',
 
         'DependencyInjection' => 'Common/DependencyInjection.php',
+
+        // ---------- Ejercicio 25: Emisora ----------
+        'InvalidEmisoraException' => 'Domain/Exceptions/InvalidEmisoraException.php',
+        'EmisoraNotFoundException' => 'Domain/Exceptions/EmisoraNotFoundException.php',
+        'EmisoraAlreadyExistsException' => 'Domain/Exceptions/EmisoraAlreadyExistsException.php',
+        'GeneroEmisoraEnum' => 'Domain/Enums/GeneroEmisoraEnum.php',
+        'EmisoraId' => 'Domain/ValueObjects/EmisoraId.php',
+        'EmisoraNombre' => 'Domain/ValueObjects/EmisoraNombre.php',
+        'BandaFm' => 'Domain/ValueObjects/BandaFm.php',
+        'BandaAm' => 'Domain/ValueObjects/BandaAm.php',
+        'EmisoraModel' => 'Domain/Models/EmisoraModel.php',
+
+        'CreateEmisoraUseCase' => 'Application/Ports/In/CreateEmisoraUseCase.php',
+        'UpdateEmisoraUseCase' => 'Application/Ports/In/UpdateEmisoraUseCase.php',
+        'GetEmisoraByIdUseCase' => 'Application/Ports/In/GetEmisoraByIdUseCase.php',
+        'GetAllEmisorasUseCase' => 'Application/Ports/In/GetAllEmisorasUseCase.php',
+        'DeleteEmisoraUseCase' => 'Application/Ports/In/DeleteEmisoraUseCase.php',
+        'SaveEmisoraPort' => 'Application/Ports/Out/SaveEmisoraPort.php',
+        'UpdateEmisoraPort' => 'Application/Ports/Out/UpdateEmisoraPort.php',
+        'GetEmisoraByIdPort' => 'Application/Ports/Out/GetEmisoraByIdPort.php',
+        'GetEmisoraByNombrePort' => 'Application/Ports/Out/GetEmisoraByNombrePort.php',
+        'GetAllEmisorasPort' => 'Application/Ports/Out/GetAllEmisorasPort.php',
+        'DeleteEmisoraPort' => 'Application/Ports/Out/DeleteEmisoraPort.php',
+        'CreateEmisoraCommand' => 'Application/Services/Dto/Commands/CreateEmisoraCommand.php',
+        'UpdateEmisoraCommand' => 'Application/Services/Dto/Commands/UpdateEmisoraCommand.php',
+        'DeleteEmisoraCommand' => 'Application/Services/Dto/Commands/DeleteEmisoraCommand.php',
+        'GetEmisoraByIdQuery' => 'Application/Services/Dto/Queries/GetEmisoraByIdQuery.php',
+        'GetAllEmisorasQuery' => 'Application/Services/Dto/Queries/GetAllEmisorasQuery.php',
+        'EmisoraApplicationMapper' => 'Application/Services/Mappers/EmisoraApplicationMapper.php',
+        'CreateEmisoraService' => 'Application/Services/CreateEmisoraService.php',
+        'UpdateEmisoraService' => 'Application/Services/UpdateEmisoraService.php',
+        'GetEmisoraByIdService' => 'Application/Services/GetEmisoraByIdService.php',
+        'GetAllEmisorasService' => 'Application/Services/GetAllEmisorasService.php',
+        'DeleteEmisoraService' => 'Application/Services/DeleteEmisoraService.php',
+
+        'EmisoraPersistenceDto' => 'Infrastructure/Adapters/Persistence/MySQL/Dto/EmisoraPersistenceDto.php',
+        'EmisoraEntity' => 'Infrastructure/Adapters/Persistence/MySQL/Entity/EmisoraEntity.php',
+        'EmisoraPersistenceMapper' => 'Infrastructure/Adapters/Persistence/MySQL/Mapper/EmisoraPersistenceMapper.php',
+        'EmisoraRepositoryMySQL' => 'Infrastructure/Adapters/Persistence/MySQL/Repository/EmisoraRepositoryMySQL.php',
+
+        'EmisoraWebRequest' => 'Infrastructure/Entrypoints/Web/Controllers/Dto/EmisoraWebRequest.php',
+        'EmisoraResponse' => 'Infrastructure/Entrypoints/Web/Controllers/Dto/EmisoraResponse.php',
+        'EmisoraWebMapper' => 'Infrastructure/Entrypoints/Web/Controllers/Mapper/EmisoraWebMapper.php',
+        'EmisoraController' => 'Infrastructure/Entrypoints/Web/Controllers/EmisoraController.php',
+        'EmisoraApiController' => 'Infrastructure/Entrypoints/Web/Controllers/EmisoraApiController.php',
     );
 
     public static function register(): void
