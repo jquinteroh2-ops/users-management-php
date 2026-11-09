@@ -156,4 +156,38 @@ final class DependencyInjection
             self::getUserRepository()
         );
     }
+
+    // ---------------------------------------------------------------
+    // Ejercicio 25: Emisora
+    // ---------------------------------------------------------------
+
+    public static function getEmisoraRepository(): EmisoraRepositoryMySQL
+    {
+        ClassLoader::loadClass('EmisoraRepositoryMySQL');
+
+        return new EmisoraRepositoryMySQL(self::getPdo(), new EmisoraPersistenceMapper());
+    }
+
+    public static function getEmisoraController(): EmisoraController
+    {
+        ClassLoader::loadClass('EmisoraController');
+        $repository = self::getEmisoraRepository();
+
+        // El mismo adaptador implementa todos los puertos de salida de Emisora.
+        return new EmisoraController(
+            new CreateEmisoraService($repository, $repository, $repository),
+            new UpdateEmisoraService($repository, $repository, $repository),
+            new GetEmisoraByIdService($repository),
+            new GetAllEmisorasService($repository),
+            new DeleteEmisoraService($repository, $repository),
+            new EmisoraWebMapper()
+        );
+    }
+
+    public static function getEmisoraApiController(): EmisoraApiController
+    {
+        ClassLoader::loadClass('EmisoraApiController');
+
+        return new EmisoraApiController(self::getEmisoraController());
+    }
 }
