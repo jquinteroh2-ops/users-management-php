@@ -59,6 +59,21 @@ function getLoggedUser(): array
 // Routing
 // ──────────────────────────────────────────────────────────────
 
+// Ejercicio 25: rutas REST de la API de emisoras.
+// index.php/api/emisoras y index.php/api/emisoras/{id} se traducen a las rutas api.emisoras.*
+// según el método HTTP (GET, POST, PUT, DELETE).
+$pathInfo = (string) ($_SERVER['PATH_INFO'] ?? '');
+if (preg_match('#^/api/emisoras(?:/([^/]+))?/?$#', $pathInfo, $apiMatch) === 1) {
+    $apiId = isset($apiMatch[1]) ? rawurldecode($apiMatch[1]) : '';
+    $apiRoutes = $apiId === ''
+        ? array('GET' => 'api.emisoras.index', 'POST' => 'api.emisoras.store')
+        : array('GET' => 'api.emisoras.show', 'PUT' => 'api.emisoras.update', 'DELETE' => 'api.emisoras.delete');
+    if ($apiId !== '') {
+        $_GET['id'] = $apiId;
+    }
+    $_GET['route'] = $apiRoutes[strtoupper((string) $_SERVER['REQUEST_METHOD'])] ?? reset($apiRoutes);
+}
+
 $route = isset($_GET['route']) ? trim((string) $_GET['route']) : 'home';
 $routes = WebRoutes::routes();
 
@@ -74,6 +89,20 @@ $httpMethod = strtoupper((string) $_SERVER['REQUEST_METHOD']);
 if ($httpMethod !== $definition['method']) {
     http_response_code(405);
     View::render('home', buildHomeViewData('Método HTTP no permitido.'));
+    exit;
+}
+
+// Ejercicio 25: la API JSON de emisoras responde con códigos HTTP (401, 404...)
+// en lugar de redirigir a una vista.
+if (str_starts_with($definition['action'], 'api.')) {
+    if (!isLoggedIn()) {
+        EmisoraApiController::json(401, array(
+            'status' => 401,
+            'message' => 'Debe iniciar sesión primero (POST ?route=auth.authenticate).',
+        ));
+        exit;
+    }
+    DependencyInjection::getEmisoraApiController()->handle($definition['action']);
     exit;
 }
 
@@ -277,6 +306,77 @@ try {
             View::redirect('auth.forgot');
             break;
 
+        // ──────────────────────────────────────────────────────
+        // Ejercicio 25: CRUDL de emisoras
+        // ──────────────────────────────────────────────────────
+
+        case 'emisoras.index':
+            $emisoras = DependencyInjection::getEmisoraController()->index();
+            View::render('emisoras/list', array(
+                'pageTitle' => 'Lista de emisoras',
+                'emisoras' => $emisoras,
+                'message' => Flash::message(),
+                'success' => Flash::success(),
+            ));
+            break;
+
+        case 'emisoras.create':
+            View::render('emisoras/create', buildEmisoraFormViewData('Registrar emisora'));
+            break;
+
+        case 'emisoras.store':
+            $emisoraRequest = EmisoraWebRequest::fromArray(generateUuid4(), $_POST);
+            $errors = $emisoraRequest->validate();
+
+            if (!empty($errors)) {
+                Flash::setOld($emisoraRequest->old());
+                Flash::setErrors($errors);
+                Flash::setMessage('Corrige los errores del formulario.');
+                View::redirect('emisoras.create');
+            }
+
+            DependencyInjection::getEmisoraController()->store($emisoraRequest);
+            Flash::setSuccess('Emisora registrada correctamente.');
+            View::redirect('emisoras.index');
+            break;
+
+        case 'emisoras.show':
+            $emisora = DependencyInjection::getEmisoraController()->show((string) ($_GET['id'] ?? ''));
+            View::render('emisoras/show', array(
+                'pageTitle' => 'Detalle de emisora',
+                'emisora' => $emisora,
+                'message' => Flash::message(),
+            ));
+            break;
+
+        case 'emisoras.edit':
+            $emisora = DependencyInjection::getEmisoraController()->show((string) ($_GET['id'] ?? ''));
+            View::render('emisoras/edit', buildEmisoraFormViewData('Editar emisora') + array('emisora' => $emisora));
+            break;
+
+        case 'emisoras.update':
+            $emisoraRequest = EmisoraWebRequest::fromArray((string) ($_POST['id'] ?? ''), $_POST);
+            $errors = $emisoraRequest->validate();
+
+            if (!empty($errors)) {
+                Flash::setOld($emisoraRequest->old());
+                Flash::setErrors($errors);
+                Flash::setMessage('Corrige los errores del formulario.');
+                header('Location: ?route=emisoras.edit&id=' . urlencode($emisoraRequest->getId()));
+                exit;
+            }
+
+            DependencyInjection::getEmisoraController()->update($emisoraRequest);
+            Flash::setSuccess('Emisora actualizada correctamente.');
+            View::redirect('emisoras.index');
+            break;
+
+        case 'emisoras.delete':
+            DependencyInjection::getEmisoraController()->delete((string) ($_POST['id'] ?? ''));
+            Flash::setSuccess('Emisora eliminada correctamente.');
+            View::redirect('emisoras.index');
+            break;
+
         default:
             throw new RuntimeException('Acción no soportada.');
     }
@@ -314,6 +414,22 @@ try {
         case 'users.delete':
             Flash::setMessage($msg);
             View::redirect('users.index');
+            break;
+
+        case 'emisoras.store':
+            Flash::setOld(EmisoraWebRequest::fromArray('', $_POST)->old());
+            View::redirect('emisoras.create');
+            break;
+
+        case 'emisoras.update':
+            Flash::setOld(EmisoraWebRequest::fromArray((string) ($_POST['id'] ?? ''), $_POST)->old());
+            header('Location: ?route=emisoras.edit&id=' . urlencode(trim((string) ($_POST['id'] ?? ''))));
+            exit;
+
+        case 'emisoras.show':
+        case 'emisoras.edit':
+        case 'emisoras.delete':
+            View::redirect('emisoras.index');
             break;
 
         default:
@@ -505,4 +621,21 @@ function validateUpdateUserForm(array $form): array
     }
 
     return $errors;
+}
+
+
+/**
+ * Datos comunes de las vistas "registrar" y "editar" emisora.
+ *
+ * @return array<string, mixed>
+ */
+function buildEmisoraFormViewData(string $pageTitle): array
+{
+    return array(
+        'pageTitle' => $pageTitle,
+        'generoOptions' => GeneroEmisoraEnum::values(),
+        'message' => Flash::message(),
+        'errors' => Flash::errors(),
+        'old' => Flash::old(),
+    );
 }

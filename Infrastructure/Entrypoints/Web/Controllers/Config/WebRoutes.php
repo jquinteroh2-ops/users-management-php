@@ -62,6 +62,56 @@ final class WebRoutes
                 'method' => 'POST',
                 'action' => 'forgot.send',
             ),
+            // Ejercicio 25: CRUDL de emisoras (vistas web)
+            'emisoras.index' => array(
+                'method' => 'GET',
+                'action' => 'emisoras.index',
+            ),
+            'emisoras.create' => array(
+                'method' => 'GET',
+                'action' => 'emisoras.create',
+            ),
+            'emisoras.store' => array(
+                'method' => 'POST',
+                'action' => 'emisoras.store',
+            ),
+            'emisoras.show' => array(
+                'method' => 'GET',
+                'action' => 'emisoras.show',
+            ),
+            'emisoras.edit' => array(
+                'method' => 'GET',
+                'action' => 'emisoras.edit',
+            ),
+            'emisoras.update' => array(
+                'method' => 'POST',
+                'action' => 'emisoras.update',
+            ),
+            'emisoras.delete' => array(
+                'method' => 'POST',
+                'action' => 'emisoras.delete',
+            ),
+            // Ejercicio 25: API REST (JSON) de emisoras
+            'api.emisoras.index' => array(
+                'method' => 'GET',
+                'action' => 'api.emisoras.index',
+            ),
+            'api.emisoras.show' => array(
+                'method' => 'GET',
+                'action' => 'api.emisoras.show',
+            ),
+            'api.emisoras.store' => array(
+                'method' => 'POST',
+                'action' => 'api.emisoras.store',
+            ),
+            'api.emisoras.update' => array(
+                'method' => 'PUT',
+                'action' => 'api.emisoras.update',
+            ),
+            'api.emisoras.delete' => array(
+                'method' => 'DELETE',
+                'action' => 'api.emisoras.delete',
+            ),
         );
     }
 }
