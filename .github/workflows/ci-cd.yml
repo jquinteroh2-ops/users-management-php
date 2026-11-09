@@ -1,0 +1,54 @@
+name: CI/CD
+
+# Integración: revisa la sintaxis de todos los archivos PHP y ejecuta las
+# pruebas del dominio en cada push y pull request.
+# Despliegue: si todo pasa en main, construye la imagen Docker y llama al
+# Deploy Hook de Render (secreto RENDER_DEPLOY_HOOK_URL).
+
+on:
+  push:
+    branches: [main, "feature/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configurar PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: pdo_mysql, mbstring
+
+      - name: Revisar sintaxis de los archivos PHP
+        run: find . -name "*.php" -not -path "./.git/*" -print0 | xargs -0 -n1 php -l
+
+      - name: Pruebas del dominio y casos de uso de Emisora
+        run: php tests/EmisoraDomainTest.php
+
+  docker:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Construir imagen Docker
+        run: docker build -t emisoras-php:${{ github.sha }} .
+
+  deploy:
+    needs: docker
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Desplegar en Render
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "No está configurado el secreto RENDER_DEPLOY_HOOK_URL; se omite el despliegue."
+            exit 0
+          fi
+          curl --fail --silent --show-error -X POST "$RENDER_DEPLOY_HOOK_URL"
+          echo "Despliegue solicitado a Render."
